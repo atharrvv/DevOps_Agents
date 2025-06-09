@@ -1,0 +1,23 @@
+[project]
+name = "new_latte"
+version = "0.1.0"
+description = "new-latte using crewAI"
+authors = [{ name = "Your Name", email = "you@example.com" }]
+requires-python = ">=3.10,<3.13"
+dependencies = [
+    "crewai[tools]>=0.121.1,<1.0.0"
+]
+
+[project.scripts]
+new_latte = "new_latte.main:run"
+run_crew = "new_latte.main:run"
+train = "new_latte.main:train"
+replay = "new_latte.main:replay"
+test = "new_latte.main:test"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.crewai]
+type = "crew"

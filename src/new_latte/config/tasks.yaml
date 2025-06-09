@@ -1,0 +1,33 @@
+analyze_repository:
+  description: >
+    Analyze the GitHub repository at {github_repo_url}. Check for the presence of
+    necessary files and directories such as `.github/workflows`, `Dockerfile`, `requirements.txt`,
+    `package.json`, etc. Report missing components and recommend what should be added for
+    proper GitHub Actions integration.
+  agent: directory_analyzer
+  expected_output: >
+    A detailed audit report of the repository structure with a list of existing files and folders,
+    as well as a list of missing elements required for GitHub Actions workflows.
+
+plan_github_workflow:
+  description: >
+    Based on the analysis report from the previous task, design a GitHub Actions workflow strategy
+    for the repository at {github_repo_url}. Determine how many workflows are needed (e.g., test, build, deploy),
+    what triggers to use (push, pull_request), and what steps each should include.
+  agent: workflow_planner
+  depends_on: [analyze_repository]
+  expected_output: >
+    A descriptive plan outlining one or more GitHub Actions workflows, their triggers,
+    job stages, and the purpose of each step.
+
+generate_workflow_files:
+  description: >
+    Based on the workflow plan from the previous task, generate actual GitHub Actions YAML files
+    for the repository at {github_repo_url}. Create complete, syntactically correct workflow files
+    that can be directly used in the repository. Include proper job definitions, steps, actions,
+    and environment configurations.
+  agent: workflow_generator
+  depends_on: [plan_github_workflow]
+  expected_output: >
+    Complete GitHub Actions YAML workflow files with proper syntax, ready to be placed in
+    the .github/workflows directory. Include comments explaining each section.
