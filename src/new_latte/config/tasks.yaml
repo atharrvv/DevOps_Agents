@@ -1,33 +1,60 @@
-analyze_repository:
+analyze_and_generate_files:
   description: >
-    Analyze the GitHub repository at {github_repo_url}. Check for the presence of
-    necessary files and directories such as `.github/workflows`, `Dockerfile`, `requirements.txt`,
-    `package.json`, etc. Report missing components and recommend what should be added for
-    proper GitHub Actions integration.
-  agent: directory_analyzer
-  expected_output: >
-    A detailed audit report of the repository structure with a list of existing files and folders,
-    as well as a list of missing elements required for GitHub Actions workflows.
+    ACTUALLY analyze the Python repository: {github_repo_url} repository ONLY to detect:
+    1. Python version (from requirements.txt, pyproject.toml, or runtime.txt)
+    2. Python dependencies (requirements.txt, setup.py, pyproject.toml)
+    3. Python test framework (pytest, unittest, nose)
+    4. Python deployment (Flask, Django, FastAPI, or simple Python app)
 
-plan_github_workflow:
-  description: >
-    Based on the analysis report from the previous task, design a GitHub Actions workflow strategy
-    for the repository at {github_repo_url}. Determine how many workflows are needed (e.g., test, build, deploy),
-    what triggers to use (push, pull_request), and what steps each should include.
-  agent: workflow_planner
-  depends_on: [analyze_repository]
-  expected_output: >
-    A descriptive plan outlining one or more GitHub Actions workflows, their triggers,
-    job stages, and the purpose of each step.
+    IMPORTANT:
+      - This is a PYTHON project. Do NOT mention npm, node, java, or other languages.
+      - Default to Python 3.9 if no version is specified in the repository.
 
-generate_workflow_files:
-  description: >
-    Based on the workflow plan from the previous task, generate actual GitHub Actions YAML files
-    for the repository at {github_repo_url}. Create complete, syntactically correct workflow files
-    that can be directly used in the repository. Include proper job definitions, steps, actions,
-    and environment configurations.
-  agent: workflow_generator
-  depends_on: [plan_github_workflow]
+    Only use Python tools: pip, pytest, python, pylint, etc.
+  agent: repository_analyzer
   expected_output: >
-    Complete GitHub Actions YAML workflow files with proper syntax, ready to be placed in
-    the .github/workflows directory. Include comments explaining each section.
+    Python-specific analysis (100 words max):
+    - Python Version: [detected version]
+    - Dependencies: [pip install from requirements.txt/setup.py]
+    - Tests: [pytest/unittest command]
+    - App Type: [Flask/Django/FastAPI/CLI app]
+
+generate_optimized_workflows:
+  description: >
+    Create 3 optimized GitHub Actions workflows for PYTHON projects ONLY:
+    1. test.yml - Set up Python, install dependencies including pytest, run tests
+    2. build.yml - Install Python dependencies, archive .py or source files, and upload artifacts
+    3. deploy.yml - Deploy Python app (Flask/Django/FastAPI)
+
+    Required conventions:
+    - Always use actions/checkout@v4
+    - Always use actions/setup-python@v4
+    - Always use actions/upload-artifact@v4 (✅ latest version)
+    - Install Python dependencies with `pip install -r requirements.txt` (check existence)
+    - Always install pytest manually: `pip install pytest`
+    - Use `python -m pytest` to run tests
+    - For build:
+        - If `pyproject.toml` exists: use `pip install build && python -m build`
+        - If only `setup.py` exists: use `pip install wheel && python setup.py sdist bdist_wheel`
+        - Always upload the `dist/` directory using actions/upload-artifact@v4
+
+
+
+    ❌ DO NOT:
+    - Use actions/upload-artifact@v3 (deprecated)
+    - Use archive-workflow-job (non-existent)
+    - Include placeholder files like `yourapplication.py`
+
+  agent: workflow_creator
+  depends_on: [analyze_and_generate_files]
+  expected_output: >
+    3 Python GitHub Actions workflows:
+    1. test.yml (20-30 lines): Validates dependencies, installs pytest, runs tests
+    2. build.yml (20-30 lines): Archives code using zip and uploads via upload-artifact@v4
+    3. deploy.yml (20-30 lines): Deploys Python app using detected framework (Flask, Django, etc.)
+
+    All workflows must:
+    - Be 100% Python specific
+    - Be valid for GitHub Actions
+    - Avoid deprecated actions or broken versions
+    - Include practical and reusable steps

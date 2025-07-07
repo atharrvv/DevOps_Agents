@@ -11,45 +11,35 @@ class NewLatte():
     
     # These agent names MUST match the names in your agents.yaml
     @agent
-    def directory_analyzer(self) -> Agent:
+    def repository_analyzer(self) -> Agent:
         return Agent(
-            config=self.agents_config['directory_analyzer'],
+            config=self.agents_config['repository_analyzer'],
             verbose=True
         )
     
     @agent
-    def workflow_planner(self) -> Agent:
+    def workflow_creator(self) -> Agent:
         return Agent(
-            config=self.agents_config['workflow_planner'],
+            config=self.agents_config['workflow_creator'],
             verbose=True
         )
     
-    @agent
-    def workflow_generator(self) -> Agent:
-        return Agent(
-            config=self.agents_config['workflow_generator'],
-            verbose=True
-        )
-    
+     
     # These task names MUST match the names in your tasks.yaml
     @task
-    def analyze_repository(self) -> Task:
+    def analyze_and_generate_files(self) -> Task:
         return Task(
-            config=self.tasks_config['analyze_repository'],
+            config=self.tasks_config['analyze_and_generate_files'],
         )
     
     @task
-    def plan_github_workflow(self) -> Task:
+    def generate_optimized_workflows(self) -> Task:
         return Task(
-            config=self.tasks_config['plan_github_workflow'],
-        )
-    
-    @task
-    def generate_workflow_files(self) -> Task:
-        return Task(
-            config=self.tasks_config['generate_workflow_files'],
+            config=self.tasks_config['generate_optimized_workflows'],
             output_file='workflows.yaml'
         )
+    
+    
     
     @crew
     def crew(self) -> Crew:

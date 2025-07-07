@@ -20,7 +20,7 @@ def run():
     inputs = {
         'topic': 'AI LLMs',
         'current_year': str(datetime.now().year),
-        'github_repo_url': 'https://github.com/atharrvv/poc'
+        'github_repo_url': 'https://github.com/atharrvv/URL.git'
     }
     
     try:
@@ -36,7 +36,7 @@ def train():
     inputs = {
         "topic": "AI LLMs",
         'current_year': str(datetime.now().year),
-        'github_repo_url': 'https://github.com/atharrvv/poc'
+        'github_repo_url': 'https://github.com/atharrvv/URL.git'
     }
     try:
         NewLatte().crew().train(n_iterations=int(sys.argv[1]), filename=sys.argv[2], inputs=inputs)
@@ -61,7 +61,7 @@ def test():
     inputs = {
         "topic": "AI LLMs",
         "current_year": str(datetime.now().year),
-        'github_repo_url': 'https://github.com/atharrvv/poc'
+        'github_repo_url': 'https://github.com/atharrvv/URL.git'
     }
     
     try:

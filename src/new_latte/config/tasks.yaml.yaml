@@ -1,0 +1,52 @@
+analyze_and_generate_files:
+  description: >
+    ACTUALLY analyze the Python repository: {github_repo_url} repository ONLY to detect:
+    1. Python version (from requirements.txt, pyproject.toml, or runtime.txt)
+    2. Python dependencies (requirements.txt, setup.py, pyproject.toml)
+    3. Python test framework (pytest, unittest, nose)
+    4. Python deployment (Flask, Django, FastAPI, or simple Python app)
+
+    IMPORTANT: This is a PYTHON project. Do NOT mention npm, node, java, or other languages.
+    Only use Python tools: pip, pytest, python, pylint, etc.
+  agent: repository_analyzer
+  expected_output: >
+    Python-specific analysis (100 words max):
+    - Python Version: [detected version]
+    - Dependencies: [pip install from setup.py]
+    - Tests: [pytest/unittest command]
+    - App Type: [CLI/Flask/Django/FastAPI]
+
+generate_optimized_workflows:
+  description: >
+    Create 3 optimized GitHub Actions workflows for PYTHON projects using SETUP.PY:
+
+    1. test.yml:
+      - Use actions/checkout@v4
+      - Use actions/setup-python@v4 (version 3.9)
+      - Run: pip install . && pip install pytest
+      - Run: python -m pytest
+
+    2. build.yml:
+      - Use actions/checkout@v4
+      - Use actions/setup-python@v4 (version 3.9)
+      - Run: pip install build
+      - Run: python -m build
+      - Upload dist/ folder using actions/upload-artifact@v4
+
+    3. deploy.yml:
+      - Skip deployment if no web framework detected
+      - Output: echo "This is a CLI tool — no deployment needed."
+
+    ✅ Must:
+    - Use actions/upload-artifact@v4
+    - Avoid deprecated versions (v3, archive-workflow-job)
+    - Use pip install . from setup.py if found
+    - Validate Python tools only (no npm, node, or java)
+
+  agent: workflow_creator
+  depends_on: [analyze_and_generate_files]
+  expected_output: >
+    3 Python GitHub Actions workflows:
+    1. test.yml: setup, pip install ., install pytest, run pytest
+    2. build.yml: pip install build, run python -m build, upload dist/
+    3. deploy.yml: echo CLI message if no framework (skip deploy)

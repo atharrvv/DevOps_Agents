@@ -1,0 +1,49 @@
+analyze_and_generate_files:
+  description: >
+    ACTUALLY analyze the Python repository: {github_repo_url} repository ONLY to detect:
+    1. Python version (from requirements.txt, pyproject.toml, or runtime.txt)
+    2. Python dependencies (requirements.txt, setup.py, pyproject.toml)
+    3. Python test framework (pytest, unittest, nose)
+    4. Python deployment (Flask, Django, FastAPI, or simple Python app)
+    
+    IMPORTANT: This is a PYTHON project. Do NOT mention npm, node, java, or other languages.
+    Only use Python tools: pip, pytest, python, pylint, etc.
+  agent: repository_analyzer
+  expected_output: >
+    Python-specific analysis (100 words max):
+    - Python Version: [detected version]
+    - Dependencies: [pip install from requirements.txt/setup.py]
+    - Tests: [pytest/unittest command]
+    - App Type: [Flask/Django/FastAPI/CLI app]
+
+generate_optimized_workflows:
+  description: >
+    Create 3 simple GitHub Actions workflows for PYTHON projects ONLY:
+    1. test.yml - Set up Python, install dependencies including pytest, run tests
+    2. build.yml - Install Python dependencies and create artifacts
+    3. deploy.yml - Deploy Python app (Flask/Django/FastAPI)
+    
+    CRITICAL Python workflow requirements:
+    - Always use actions/setup-python@v4
+    - Install pytest explicitly: pip install pytest
+    - Install dependencies: pip install -r requirements.txt (if exists)
+    - Use python -m pytest for testing
+    - Handle cases where requirements.txt doesn't exist
+    - Use python -m pip install --upgrade pip
+    
+    Example test workflow structure:
+    - Setup Python 3.9
+    - Upgrade pip
+    - Install pytest
+    - Install requirements.txt if exists
+    - Run tests with python -m pytest
+    
+    DO NOT assume pytest is pre-installed. Always install it first.
+  agent: workflow_creator
+  depends_on: [analyze_and_generate_files]
+  expected_output: >
+    3 Python-specific workflow files:
+    1. test.yml (20-30 lines) - Installs pytest and runs tests
+    2. build.yml (15-25 lines) - Builds Python artifacts
+    3. deploy.yml (15-25 lines) - Python deployment
+    Each with complete, working YAML that handles dependencies properly.

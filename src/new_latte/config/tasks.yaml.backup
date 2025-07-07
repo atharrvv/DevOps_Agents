@@ -1,0 +1,36 @@
+analyze_and_generate_files:
+  description: >
+    Analyze repository to detect:
+    1. Technology stack (Python, Node.js, Java, Go, etc.)
+    2. Test framework used
+    3. Build requirements
+    4. Deployment method needed
+    Keep analysis simple and focused.
+  agent: repository_analyzer
+  expected_output: >
+    Simple analysis (100 words max):
+    - Technology: [detected language/framework]
+    - Tests: [test command/framework]
+    - Build: [build command if needed]
+    - Deploy: [deployment method]
+
+generate_optimized_workflows:
+  description: >
+    Create 3 simple GitHub Actions workflows:
+    1. test.yml - Run tests on push/PR
+    2. build.yml - Build artifacts/containers
+    3. deploy.yml - Deploy to production
+    
+    Keep workflows simple:
+    - Use standard actions
+    - Minimal configuration
+    - Clear job names
+    - Basic error handling
+  agent: workflow_creator
+  depends_on: [analyze_and_generate_files]
+  expected_output: >
+    3 simple workflow files:
+    1. test.yml (15-25 lines)
+    2. build.yml (15-25 lines)
+    3. deploy.yml (15-25 lines)
+    Each with complete, working YAML content.
