@@ -1,0 +1,150 @@
+#!/usr/bin/env python
+import sys
+import warnings
+from datetime import datetime
+from new_latte.crew import NewLatte
+
+warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysdb")
+
+def get_ec2_connection_details():
+    """
+    Get EC2 connection details from user input.
+    """
+    print("=" * 50)
+    print("EC2 CONNECTION DETAILS FOR GITHUB ACTIONS")
+    print("=" * 50)
+    print("Please provide your EC2 connection details for deployment workflow.")
+    print("These will be used as GitHub secrets in the generated deploy.yml workflow.")
+    print()
+    
+    ec2_host = input("Enter EC2 Host (IP or domain): ").strip()
+    while not ec2_host:
+        print("❌ EC2 Host is required!")
+        ec2_host = input("Enter EC2 Host (IP or domain): ").strip()
+    
+    ec2_username = input("Enter EC2 Username (e.g., ubuntu, ec2-user): ").strip()
+    while not ec2_username:
+        print("❌ EC2 Username is required!")
+        ec2_username = input("Enter EC2 Username (e.g., ubuntu, ec2-user): ").strip()
+    
+    print("Enter EC2 SSH Key (paste the private key content):")
+    print("(Type 'END' on a new line when finished)")
+    ec2_ssh_key_lines = []
+    while True:
+        line = input()
+        if line.strip() == "END":
+            break
+        ec2_ssh_key_lines.append(line)
+    
+    ec2_ssh_key = "\n".join(ec2_ssh_key_lines).strip()
+    while not ec2_ssh_key:
+        print("❌ SSH Key is required!")
+        print("Enter EC2 SSH Key (paste the private key content):")
+        print("(Type 'END' on a new line when finished)")
+        ec2_ssh_key_lines = []
+        while True:
+            line = input()
+            if line.strip() == "END":
+                break
+            ec2_ssh_key_lines.append(line)
+        ec2_ssh_key = "\n".join(ec2_ssh_key_lines).strip()
+    
+    print("\n" + "=" * 50)
+    print("SUMMARY")
+    print("=" * 50)
+    print(f"EC2 Host: {ec2_host}")
+    print(f"EC2 Username: {ec2_username}")
+    print(f"SSH Key: [PROVIDED]")
+    print()
+    print("These details will be used in the deploy.yml workflow as:")
+    print(f"- host: ${{{{ secrets.EC2_HOST }}}}")
+    print(f"- username: ${{{{ secrets.EC2_USERNAME }}}}")
+    print(f"- key: ${{{{ secrets.EC2_SSH_KEY }}}}")
+    print()
+    
+    return ec2_host, ec2_username, ec2_ssh_key
+
+def run():
+    """
+    Run the crew.
+    """
+    # Get EC2 connection details from user
+    ec2_host, ec2_username, ec2_ssh_key = get_ec2_connection_details()
+    
+    # Get GitHub repository URL
+    github_repo_url = input("Enter GitHub Repository URL: ").strip()
+    if not github_repo_url:
+        github_repo_url = 'https://github.com/example/repo.git'
+        print(f"Using default repository: {github_repo_url}")
+    
+    inputs = {
+        'topic': 'AI LLMs',
+        'current_year': str(datetime.now().year),
+        'github_repo_url': github_repo_url,
+        'ec2_host': f"${{{{ secrets.EC2_HOST }}}}",
+        'ec2_username': f"${{{{ secrets.EC2_USERNAME }}}}",
+        'ec2_ssh_key': f"${{{{ secrets.EC2_SSH_KEY }}}}"
+    }
+    
+    print("\n" + "=" * 50)
+    print("STARTING WORKFLOW GENERATION")
+    print("=" * 50)
+    print("The following GitHub secrets need to be configured in your repository:")
+    print(f"EC2_HOST: {ec2_host}")
+    print(f"EC2_USERNAME: {ec2_username}")
+    print(f"EC2_SSH_KEY: [Your SSH private key]")
+    print("=" * 50)
+    
+    try:
+        NewLatte().crew().kickoff(inputs=inputs)
+    except Exception as e:
+        raise Exception(f"An error occurred while running the crew: {e}")
+
+def train():
+    """
+    Train the crew for a given number of iterations.
+    """
+    # Get EC2 connection details from user
+    ec2_host, ec2_username, ec2_ssh_key = get_ec2_connection_details()
+    
+    inputs = {
+        "topic": "AI LLMs",
+        'current_year': str(datetime.now().year),
+        'github_repo_url': 'https://github.com/atharrvv/URL.git',
+        'ec2_host': f"${{{{ secrets.EC2_HOST }}}}",
+        'ec2_username': f"${{{{ secrets.EC2_USERNAME }}}}",
+        'ec2_ssh_key': f"${{{{ secrets.EC2_SSH_KEY }}}}"
+    }
+    try:
+        NewLatte().crew().train(n_iterations=int(sys.argv[1]), filename=sys.argv[2], inputs=inputs)
+    except Exception as e:
+        raise Exception(f"An error occurred while training the crew: {e}")
+
+def replay():
+    """
+    Replay the crew execution from a specific task.
+    """
+    try:
+        NewLatte().crew().replay(task_id=sys.argv[1])
+    except Exception as e:
+        raise Exception(f"An error occurred while replaying the crew: {e}")
+
+def test():
+    """
+    Test the crew execution and returns the results.
+    """
+    # Get EC2 connection details from user
+    ec2_host, ec2_username, ec2_ssh_key = get_ec2_connection_details()
+    
+    inputs = {
+        "topic": "AI LLMs",
+        "current_year": str(datetime.now().year),
+        'github_repo_url': 'https://github.com/atharrvv/RL.git',
+        'ec2_host': f"${{{{ secrets.EC2_HOST }}}}",
+        'ec2_username': f"${{{{ secrets.EC2_USERNAME }}}}",
+        'ec2_ssh_key': f"${{{{ secrets.EC2_SSH_KEY }}}}"
+    }
+    try:
+        NewLatte().crew().test(n_iterations=int(sys.argv[1]), eval_llm=sys.argv[2], inputs=inputs)
+    except Exception as e:
+        raise Exception(f"An ror occurred while testing the crew: {e}")

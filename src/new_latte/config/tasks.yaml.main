@@ -37,13 +37,7 @@ generate_optimized_workflows:
         - If `pyproject.toml` exists: use `pip install build && python -m build`
         - If only `setup.py` exists: use `pip install wheel && python setup.py sdist bdist_wheel`
         - Always upload the `dist/` directory using actions/upload-artifact@v4
-    - For EC2 deployment:
-        - Use appleboy/ssh-action@v1.1.0 for SSH connection
-        - Git pull latest code on EC2
-        - Install/update Python dependencies with pip
-        - Restart gunicorn/systemd service
-        - Reload nginx if needed
-        - Support Flask, Django, FastAPI deployment patterns
+
 
 
     ❌ DO NOT:
@@ -57,13 +51,10 @@ generate_optimized_workflows:
     3 Python GitHub Actions workflows:
     1. test.yml (20-30 lines): Validates dependencies, installs pytest, runs tests
     2. build.yml (20-30 lines): Archives code using zip and uploads via upload-artifact@v4
-    3. deploy.yml (30-40 lines): Deploys Python app to EC2 using SSH, supports Flask/Django/FastAPI
+    3. deploy.yml (20-30 lines): Deploys Python app using detected framework (Flask, Django, etc.)
 
     All workflows must:
     - Be 100% Python specific
     - Be valid for GitHub Actions
-    - Include EC2 deployment with proper service restart
-    - Handle Python virtual environments on EC2
-    - Support multiple Python web frameworks
     - Avoid deprecated actions or broken versions
     - Include practical and reusable steps

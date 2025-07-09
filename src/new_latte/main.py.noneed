@@ -1,0 +1,127 @@
+#!/usr/bin/env python
+import sys
+import warnings
+from datetime import datetime
+from new_latte.crew import NewLatte
+
+warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysdb")
+
+def show_github_secrets_info():
+    """
+    Display information about required GitHub secrets.
+    """
+    print("=" * 60)
+    print("GITHUB SECRETS CONFIGURATION REQUIRED")
+    print("=" * 60)
+    print("The generated deploy.yml workflow will use the following GitHub secrets:")
+    print()
+    print("🔑 EC2_HOST        - Your EC2 server IP or domain")
+    print("🔑 EC2_USERNAME    - Your EC2 username (ubuntu, ec2-user, etc.)")
+    print("🔑 EC2_SSH_KEY     - Your EC2 private SSH key")
+    print()
+    print("📋 To configure these secrets in your GitHub repository:")
+    print("   1. Go to your GitHub repository")
+    print("   2. Settings → Secrets and variables → Actions")
+    print("   3. Click 'New repository secret'")
+    print("   4. Add each secret with the exact names above")
+    print()
+    print("✅ The workflow will automatically use these secrets for deployment!")
+    print("=" * 60)
+    print()
+
+def run():
+    """
+    Run the crew.
+    """
+    # Get EC2 connection details from user
+    ec2_host, ec2_username, ec2_ssh_key = get_ec2_connection_details()
+    
+    # Get GitHub repository URL
+    github_repo_url = input("Enter GitHub Repository URL: ").strip()
+    if not github_repo_url:
+        github_repo_url = 'https://github.com/example/repo.git'
+        print(f"Using default repository: {github_repo_url}")
+    
+    inputs = {
+        'topic': 'AI LLMs',
+        'current_year': str(datetime.now().year),
+        'github_repo_url': github_repo_url,
+        'ec2_host': f"${{{{ secrets.EC2_HOST }}}}",
+        'ec2_username': f"${{{{ secrets.EC2_USERNAME }}}}",
+        'ec2_ssh_key': f"${{{{ secrets.EC2_SSH_KEY }}}}"
+    }
+    
+    print("\n" + "=" * 50)
+    print("STARTING WORKFLOW GENERATION")
+    print("=" * 50)
+    print("The following GitHub secrets need to be configured in your repository:")
+    print(f"EC2_HOST: {ec2_host}")
+    print(f"EC2_USERNAME: {ec2_username}")
+    print(f"EC2_SSH_KEY: [Your SSH private key]")
+    print("=" * 50)
+    
+    try:
+        NewLatte().crew().kickoff(inputs=inputs)
+    except Exception as e:
+        raise Exception(f"An error occurred while running the crew: {e}")
+
+def train():
+    """
+    Train the crew for a given number of iterations.
+    """
+    # Show GitHub secrets information
+    show_github_secrets_info()
+    
+    # Get GitHub repository URL
+    github_repo_url = input("Enter GitHub Repository URL: ").strip()
+    if not github_repo_url:
+        github_repo_url = 'https://github.com/example/repo.git'
+        print(f"Using default repository: {github_repo_url}")
+    
+    inputs = {
+        "topic": "AI LLM",
+        'current_year': str(datetime.now().year),
+        'github_repo_url': github_repo_url,
+        'ec2_host': "${{ secrets.EC2_HOST }}",
+        'ec2_username': "${{ secrets.EC2_USERNAME }}",
+        'ec2_ssh_key': "${{ secrets.EC2_SSH_KEY }}"
+    }
+    try:
+        NewLatte().crew().train(n_iterations=int(sys.argv[1]), filename=sys.argv[2], inputs=inputs)
+    except Exception as e:
+        raise Exception(f"An error occurred while training the crew: {e}")
+
+def replay():
+    """
+    Replay the crew execution from a specific task.
+    """
+    try:
+        NewLatte().crew().replay(task_id=sys.argv[1])
+    except Exception as e:
+        raise Exception(f"An error occurred while replaying the crew: {e}")
+
+def test():
+    """
+    Test the crew execution and returns the results.
+    """
+    # Show GitHub secrets information
+    show_github_secrets_info()
+    
+    # Get GitHub repository URL
+    github_repo_url = input("Enter GitHub Repository URL: ").strip()
+    if not github_repo_url:
+        github_repo_url = 'https://github.com/example/repo.git'
+        print(f"Using default repository: {github_repo_url}")
+    
+    inputs = {
+        "topic": "AI LLMs",
+        "current_year": str(datetime.now().year),
+        'github_repo_url': github_repo_url,
+        'ec2_host': "${{ secrets.EC2_HOST }}",
+        'ec2_username': "${{ secrets.EC2_USERNAME }}",
+        'ec2_ssh_key': "${{ secrets.EC2_SSH_KEY }}"
+    }
+    try:
+        NewLatte().crew().test(n_iterations=int(sys.argv[1]), eval_llm=sys.argv[2], inputs=inputs)
+    except Exception as e:
+        raise Exception(f"An error occurred while testing the crew: {e}")

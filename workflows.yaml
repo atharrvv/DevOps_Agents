@@ -1,75 +1,128 @@
 ```yaml
 # test.yml
-name: Test
+name: Python Tests
 
-on: [push]
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   test:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v4
-    - name: Set up Python
+    - name: Set up Python 3.9
       uses: actions/setup-python@v4
       with:
         python-version: '3.9'
     - name: Install dependencies
-      run: pip install -r requirements.txt
-    - name: Install pytest
-      run: pip install pytest
+      run: |
+        pip install -r requirements.txt
+        pip install pytest
     - name: Run tests
-      run: python -m pytest 
+      run: python -m pytest
 
+```
+
+```yaml
 # build.yml
-name: Build
+name: Build Python Package
 
-on: [push]
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - name: Set up Python
+    - name: Set up Python 3.9
       uses: actions/setup-python@v4
       with:
         python-version: '3.9'
     - name: Install build tools
-      run: |
-        if [[ -f pyproject.toml ]]; then
-          pip install build
-          python -m build
-        else 
-          pip install wheel
-          python setup.py sdist bdist_wheel
-        fi
-    - name: Upload artifact
+      run: pip install build
+    - name: Build Package
+      run: python -m build 
+    - name: Upload Artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: build
+        name: build-artifacts
         path: dist/
 
-# deploy.yml
-name: Deploy
 
-on: [push]
+
+```
+
+
+```yaml
+# deploy.yml
+name: Deploy Python App to EC2
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   deploy:
+    needs: build
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.9'
-    - name: Install dependencies
-      run: pip install -r requirements.txt
-    - name: Deploy app (Adapt this section based on your framework)
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Get SSH credentials from secrets
+      id: ssh_credentials
+      run: echo ${{ secrets.EC2_PRIVATE_KEY }} > ~/.ssh/id_rsa && echo ${{ secrets.EC2_USER }} > ~/.ssh/username
+    - name: Configure SSH
       run: |
-        echo "Deploying Flask app..."
-        # Add your deployment commands here 
-        # Example: gunicorn your_app:app -b $PORT 
-        /server.py 
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan $(aws ec2 describe-instances --filters Name=tag:Name,Values=your-app-instance --query 'Reservations[].Instances[0].PublicIpAddress' --output text) >> ~/.ssh/known_hosts 
+    - name: Deploy to EC2
+      uses: appleboy/ssh-action@v1.1.0
+      with:
+        ssh: |
+          Host your-app-instance
+          User ${{ steps.ssh_credentials.outputs.username }}
+          IdentityFile ~/.ssh/id_rsa
+          Port 22
+        command: |
+          git pull origin main
+          source /home/ec2-user/venv/bin/activate 
+          pip install -r requirements.txt
+          # Restart service based on framework
+          # Example for gunicorn:
+          # service gunicorn_app restart
+          # Example for systemd:
+          # systemctl restart your-app-name
+          # Reload nginx:
+          # nginx -s reload 
+
+
 ```
+
+
+
+**EC2 Deployment Details Needed:**
+
+   *   **Instance Name (or ID):**
+   *   **EC2 User:**
+   *   **Key Name or Private Key:**
+   *   **Service Restart Command:** (e.g., `service gunicorn_app restart`)
+
+**Remember to replace:**
+
+   *   `your-app-instance` with the actual instance name or ID.
+   *   `your-app-name` with the actual name of your application.
+   *   **Secrets:** Set GitHub secrets for `EC2_PRIVATE_KEY` and `EC2_USER`.
+
+
+
+Let me know the EC2 details, and I'll update the  `deploy.yml`  workflow accordingly!
