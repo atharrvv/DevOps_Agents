@@ -18,7 +18,6 @@ def run():
     Run the crew.
     """
     inputs = {
-        'topic': 'AI LLMs',
         'current_year': str(datetime.now().year),
         'github_repo_url': 'https://github.com/atharrvv/URL.git'
     }
@@ -34,7 +33,6 @@ def train():
     Train the crew for a given number of iterations.
     """
     inputs = {
-        "topic": "AI LLMs",
         'current_year': str(datetime.now().year),
         'github_repo_url': 'https://github.com/atharrvv/URL.git'
     }
@@ -59,7 +57,6 @@ def test():
     Test the crew execution and returns the results.
     """
     inputs = {
-        "topic": "AI LLMs",
         "current_year": str(datetime.now().year),
         'github_repo_url': 'https://github.com/atharrvv/URL.git'
     }

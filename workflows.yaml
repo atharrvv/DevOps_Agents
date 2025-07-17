@@ -1,6 +1,6 @@
 ```yaml
 # test.yml
-name: Python Tests
+name: Run Tests
 
 on:
   push:
@@ -12,23 +12,27 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python 3.9
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.9'
-    - name: Install dependencies
-      run: |
-        pip install -r requirements.txt
-        pip install pytest
-    - name: Run tests
-      run: python -m pytest
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+       
+      - name: Install Dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest
+      - name: Run Tests
+        run: python -m pytest 
 
 ```
 
+
 ```yaml
 # build.yml
-name: Build Python Package
+name: Build Artifact
 
 on:
   push:
@@ -40,89 +44,88 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python 3.9
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.9'
-    - name: Install build tools
-      run: pip install build
-    - name: Build Package
-      run: python -m build 
-    - name: Upload Artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: build-artifacts
-        path: dist/
+      - uses: actions/checkout@v4
 
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
 
+      - name: Install Dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+     
+      - name: Build
+        run: |
+          if [[ -f pyproject.toml ]]; then
+            pip install build && python -m build
+          else
+            pip install wheel && python setup.py sdist bdist_wheel
+          fi 
 
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
 ```
+
 
 
 ```yaml
 # deploy.yml
-name: Deploy Python App to EC2
+
+name: Deploy to EC2
 
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
-
+   
 jobs:
   deploy:
-    needs: build
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    
-    - name: Get SSH credentials from secrets
-      id: ssh_credentials
-      run: echo ${{ secrets.EC2_PRIVATE_KEY }} > ~/.ssh/id_rsa && echo ${{ secrets.EC2_USER }} > ~/.ssh/username
-    - name: Configure SSH
-      run: |
-        chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan $(aws ec2 describe-instances --filters Name=tag:Name,Values=your-app-instance --query 'Reservations[].Instances[0].PublicIpAddress' --output text) >> ~/.ssh/known_hosts 
-    - name: Deploy to EC2
-      uses: appleboy/ssh-action@v1.1.0
-      with:
-        ssh: |
-          Host your-app-instance
-          User ${{ steps.ssh_credentials.outputs.username }}
-          IdentityFile ~/.ssh/id_rsa
-          Port 22
-        command: |
-          git pull origin main
-          source /home/ec2-user/venv/bin/activate 
-          pip install -r requirements.txt
-          # Restart service based on framework
-          # Example for gunicorn:
-          # service gunicorn_app restart
-          # Example for systemd:
-          # systemctl restart your-app-name
-          # Reload nginx:
-          # nginx -s reload 
+      - uses: actions/checkout@v4
+
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+                                  
+
+      - name: Connect to EC2
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+
+      - name: SCP dist directory to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          source: dist/*
+          target: /home/ubuntu/
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}  
+
+      - name: Connect to EC2 (Extract and Deploy)
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}      
+
+      - name: Extract and Setup App
+        run: | 
+          cd /home/ubuntu 
+          rm -rf /app # Cleanup
+          tar -xzvf dist.tar.gz -C /app
+          pip install -r /app/requirements.txt 
+          # Flask specific instructions:
+          # gunicorn -w 4 /app/your_app:app
+          # ...
 
 
 ```
-
-
-
-**EC2 Deployment Details Needed:**
-
-   *   **Instance Name (or ID):**
-   *   **EC2 User:**
-   *   **Key Name or Private Key:**
-   *   **Service Restart Command:** (e.g., `service gunicorn_app restart`)
-
-**Remember to replace:**
-
-   *   `your-app-instance` with the actual instance name or ID.
-   *   `your-app-name` with the actual name of your application.
-   *   **Secrets:** Set GitHub secrets for `EC2_PRIVATE_KEY` and `EC2_USER`.
-
-
-
-Let me know the EC2 details, and I'll update the  `deploy.yml`  workflow accordingly!

@@ -23,19 +23,18 @@ generate_optimized_workflows:
     1. test.yml - Set up Python, install dependencies including pytest, run tests
     2. build.yml - Install Python dependencies, archive .py or source files, and upload artifacts
     3. deploy.yml - Deploy Python app (Flask/Django/FastAPI) with MANDATORY EC2 copy step
-
+    
     CRITICAL REQUIREMENT for deploy.yml:
     - MUST include initial SSH connection to EC2 for environment preparation
     - MUST include a step to copy dist folder to EC2 using appleboy/scp-action@v0.1.7
     - Copy step should transfer dist/* files to /home/ubuntu path on EC2 server
     - Use consistent secrets across all steps: EC2_HOST, EC2_USERNAME, EC2_SSH_KEY
     - Follow sequence: SSH connect → SCP copy → SSH extract and deploy
-
+    
     Required conventions:
     - Always use actions/checkout@v4
     - Always use actions/setup-python@v4
     - Always use actions/upload-artifact@v4 (✅ latest version)
-    - Always use actions/download-artifact@v4 (✅ latest version)
     - Install Python dependencies with `pip install -r requirements.txt` (check existence)
     - Always install pytest manually: `pip install pytest`
     - Use `python -m pytest` to run tests
@@ -44,40 +43,36 @@ generate_optimized_workflows:
         - If only `setup.py` exists: use `pip install wheel && python setup.py sdist bdist_wheel`
         - Always upload the `dist/` directory using actions/upload-artifact@v4
     - For EC2 deployment:
-        - Download artifacts from build job using actions/download-artifact@v4
+        - Download artifacts from build job
         - First connect to EC2 using appleboy/ssh-action@v1.1.0 to prepare environment
-        - Then copy dist folder to EC2 using appleboy/scp-action@v0.1.7 with explicit source and target parameters
+        - Then copy dist folder to EC2 using appleboy/scp-action@v0.1.7
         - Use consistent secrets: host: ${{ secrets.EC2_HOST }}, username: ${{ secrets.EC2_USERNAME }}, key: ${{ secrets.EC2_SSH_KEY }}
-        - Copy dist files to /home/ubuntu path on EC2 server using source: dist/* and target: /home/ubuntu/
+        - Copy dist files to /home/ubuntu path on EC2 server
         - Connect via SSH again to extract and setup dist files
         - Install/update Python dependencies with pip
         - Restart gunicorn/systemd service
         - Reload nginx if needed
         - Support Flask, Django, FastAPI deployment patterns
-
+    
     ❌ DO NOT:
     - Use actions/upload-artifact@v3 (deprecated)
-    - Use actions/download-artifact@v3 (deprecated)
     - Use archive-workflow-job (non-existent)
     - Include placeholder files like `yourapplication.py`
     - Skip the mandatory dist folder copy step to EC2
     - Use different secret names (must use EC2_SSH_KEY for scp actions)
-    - Use short forms in scp-action (always use explicit source and target parameters)
   agent: workflow_creator
   depends_on: [analyze_and_generate_files]
   expected_output: >
     3 Python GitHub Actions workflows:
     1. test.yml (20-30 lines): Validates dependencies, installs pytest, runs tests
     2. build.yml (20-30 lines): Archives code using zip and uploads via upload-artifact@v4
-    3. deploy.yml (35-45 lines): Downloads artifacts using download-artifact@v4, connects to EC2 via SSH, copies dist to /home/ubuntu using scp-action with explicit source and target parameters, then extracts and deploys Python app
-
+    3. deploy.yml (35-45 lines): Downloads artifacts, connects to EC2 via SSH, copies dist to /home/ubuntu using scp-action, then extracts and deploys Python app
+    
     The deploy.yml MUST follow the sequence: SSH connect → SCP copy to /home/ubuntu → SSH extract and deploy.
     All workflows must:
     - Be 100% Python specific
     - Be valid for GitHub Actions
     - Include the mandatory EC2 copy step with correct secret names
-    - Use actions/download-artifact@v4 (not v3)
-    - Use explicit source and target parameters in scp-action (source: dist/*, target: /home/ubuntu/)
     - Handle Python virtual environments on EC2
     - Support multiple Python web frameworks
     - Avoid deprecated actions or broken versions
