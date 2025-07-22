@@ -11,26 +11,20 @@ class NewLatte():
     
     # These agent names MUST match the names in your agents.yaml
     @agent
-    def repository_analyst(self) -> Agent:
+    def repository_analyzer(self) -> Agent:
         return Agent(
-            config=self.agents_config['repository_analyst'],
+            config=self.agents_config['repository_analyzer'],
             verbose=True
         )
     
     @agent
-    def github_actions_specialist(self) -> Agent:
+    def workflow_generator(self) -> Agent:
         return Agent(
-            config=self.agents_config['github_actions_specialist'],
+            config=self.agents_config['workflow_generator'],
             verbose=True
         )
     
-    @agent
-    def cloud_deployment_specialist(self) -> Agent:
-        return Agent(
-            config=self.agents_config['cloud_deployment_specialist'],
-            verbose=True
-        )
-    
+     
     # These task names MUST match the names in your tasks.yaml
     @task
     def analyze_repository(self) -> Task:
@@ -39,25 +33,13 @@ class NewLatte():
         )
     
     @task
-    def generate_github_workflows(self) -> Task:
+    def generate_workflows(self) -> Task:
         return Task(
-            config=self.tasks_config['generate_github_workflows'],
+            config=self.tasks_config['generate_workflows'],
             output_file='workflows.yaml'
         )
     
-    @task
-    def create_deployment_configurations(self) -> Task:
-        return Task(
-            config=self.tasks_config['create_deployment_configurations'],
-            output_file='deployment_config.yaml'
-        )
     
-    @task
-    def create_deployment_documentation(self) -> Task:
-        return Task(
-            config=self.tasks_config['create_deployment_documentation'],
-            output_file='deployment_docs.md'
-        )
     
     @crew
     def crew(self) -> Crew:
