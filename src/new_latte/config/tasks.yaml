@@ -1,223 +1,461 @@
-analyze_repository:
+analyze_test_build_setup:
   description: |
-    Perform comprehensive technical analysis of the Python GitHub repository at: {github_repo_url}
+    Analyze the Python repository at: {github_repo_url} specifically for testing and build configurations.
     
-    Clone and analyze the repository structure, dependencies, testing frameworks, build tools, and deployment requirements.
-    Extract all technical specifications needed for CI/CD pipeline generation.
+    Focus ONLY on:
+    1. Testing framework detection and setup (only if test directories/files are present)
+    2. Build tool identification and configuration (only if build config files are present)
+    3. Dependency management approach (based on detected files)
+    4. Python version compatibility requirements
     
-    Focus on:
-    - Complete project structure mapping
-    - All dependency identification (Python packages, system packages, services)
-    - Testing framework detection and configuration
-    - Build and packaging tool analysis
-    - Environment and configuration file discovery
+    Dynamically detect the presence of key files and directories (e.g., requirements.txt, pyproject.toml, setup.py, setup.cfg, Pipfile, tests/).
+    Only include analysis for files and directories that exist in the repository. If a file or directory is missing (e.g., requirements.txt, tests/), skip or comment out the related step in the analysis.
     
     Repository URL: {github_repo_url}
     
-    Provide detailed analysis covering project info, structure, dependencies, testing setup, build configuration, and deployment requirements.
+    Prioritize compatibility and use of latest stable versions. Avoid over-analysis and focus on essentials.
   expected_output: |
-    A comprehensive YAML-formatted analysis report containing:
+    A concise YAML analysis focusing only on test and build essentials, including only detected files and directories:
     
     ```yaml
-    repository_analysis:
+    test_build_analysis:
       project_info:
         name: "project-name"
-        description: "Brief project description"
-        python_version: "3.8+"
-        main_entry_point: "path/to/main.py or module"
-        project_type: "web_app|cli_tool|library|service"
-      
-      structure:
-        source_directory: "src/ or app/ or project_name/"
-        test_directory: "tests/ or test/"
-        config_files: ["pyproject.toml", "requirements.txt"]
-        docker_files: ["Dockerfile", "docker-compose.yml"]
-        
-      dependencies:
-        python_packages:
-          - name: "package-name"
-            version: ">=1.0.0"
-            category: "production|development|test"
-        system_packages: ["postgresql-dev", "redis-server"]
-        services: ["postgresql", "redis", "rabbitmq"]
+        python_versions: ["3.8", "3.9", "3.10", "3.11", "3.12"]  # Latest supported
+        project_type: "package|application|library"
         
       testing:
-        framework: "pytest|unittest|nose2"
-        test_command: "pytest tests/"
-        coverage_tool: "coverage|pytest-cov"
-        test_config_files: ["pytest.ini", "tox.ini"]
+        framework: "pytest"  # Only if test directory found
+        test_directory: "tests/"  # Only if exists
+        test_pattern: "test_*.py or *_test.py"
+        test_command: "python -m pytest"
+        coverage_enabled: true|false
+        coverage_command: "python -m pytest --cov"
+        requirements_file: "requirements-test.txt or requirements.txt"
+        config_file: "pytest.ini|pyproject.toml|setup.cfg"  # If exists
+        note: "No tests found. Skipping test analysis."  # If no test directory found
         
       build:
-        build_tool: "setuptools|poetry|flit"
-        package_format: "wheel|sdist"
-        build_command: "python -m build"
+        tool: "setuptools|poetry|flit"  # Only if build config file found
+        config_file: "pyproject.toml|setup.py|setup.cfg"
+        build_command: "python -m build"  # Standard command
+        package_type: "wheel|sdist|both"
+        install_command: "pip install -e ."  # For development
+        note: "No build configuration found. Skipping build analysis."  # If no build config found
         
-      deployment:
-        type: "wsgi|asgi|cli|service"
-        server_requirements: ["gunicorn", "uvicorn"]
-        static_files: true|false
-        database_migrations: true|false
-        environment_variables: ["DATABASE_URL", "SECRET_KEY"]
+      dependencies:
+        management: "pip|poetry|pipenv"  # Detected approach
+        files: ["requirements.txt", "pyproject.toml", "Pipfile"]  # Only found files
+        install_command: "pip install -r requirements.txt"  # Standardized
+        
+      compatibility:
+        min_python: "3.8"  # Minimum supported
+        os_support: ["ubuntu-latest"]  # Default, add others if detected
+        special_requirements: []  # Only if system packages needed
     ```
-  agent: repository_analyst
-  tools: []
+  agent: test_build_analyst
 
-generate_github_workflows:
+generate_test_build_workflow:
   description: |
-    Create comprehensive, production-ready GitHub Actions workflows for the repository: {github_repo_url}
-    
-    Generate multiple workflow files optimized for testing, building, and deploying Python applications to cloud VMs.
-    Implement industry best practices including security, performance optimization, and error handling.
-    
-    Create workflows for:
-    - Main CI/CD pipeline with testing, building, and deployment
-    - Security scanning and vulnerability checks
-    - Dependency updates and maintenance
+    Generate a single, comprehensive GitHub Actions workflow for testing and building Python applications.
     
     Repository URL: {github_repo_url}
     
-    Each workflow must include proper error handling, caching strategies, security best practices, and cloud platform integration.
-    Include comprehensive comments explaining each step and configuration options.
+    The workflow must:
+    - Dynamically detect and use only the dependency, build, and test files/directories that exist in the repository (e.g., requirements.txt, pyproject.toml, setup.py, Pipfile, tests/)
+    - Skip or comment out steps for missing files/directories (e.g., if no tests/ directory, skip test job and add a comment)
+    - Test across Python 3.8-3.12 (latest stable versions)
+    - Use latest stable GitHub Actions (actions/setup-python@v5, actions/cache@v4)
+    - Implement efficient caching strategies
+    - Build the package/application if build config exists
+    - Include comprehensive error handling
+    - Work reliably across different repository types
+    
+    Focus on reliability and compatibility over complex features.
   expected_output: |
-    Three complete GitHub Actions workflow files:
+    A single, complete GitHub Actions workflow file (.github/workflows/test-and-build.yml):
     
-    1. **Main CI/CD Workflow (.github/workflows/ci-cd.yml)**
-       - Multi-job workflow with proper dependencies
-       - Matrix testing across Python versions
-       - Intelligent caching for dependencies
-       - Security scanning integration
-       - Multi-environment deployment (staging/production)
-       - Rollback mechanisms
+    **Key Requirements:**
+    - Use latest stable action versions (setup-python@v5, cache@v4, etc.)
+    - Test matrix across Python 3.8, 3.9, 3.10, 3.11, 3.12
+    - Intelligent dependency caching with pip/poetry/pipenv detection
+    - Automatic test framework detection (pytest preferred)
+    - Build step integration using python -m build (only if build config exists)
+    - Code coverage reporting (if tests detected)
+    - Artifact upload for built packages
+    - Clear job names and comprehensive comments
+    - Fail-safe configurations for different project structures
+    - Conditional steps based on file existence (skip or comment out steps for missing files/directories)
     
-    2. **Security Scanning Workflow (.github/workflows/security.yml)**
-       - Dependency vulnerability scanning
-       - Code security analysis
-       - Container image scanning (if applicable)
-       - Security reporting and notifications
-    
-    3. **Dependency Update Workflow (.github/workflows/dependency-updates.yml)**
-       - Automated dependency updates
-       - Security patch management
-       - Pull request automation
-       - Testing integration for updates
-    
-    Each workflow file should be complete, executable, and include:
-    - Comprehensive inline documentation
-    - Environment-specific configurations
-    - Proper secrets management
-    - Error handling and notifications
-    - Performance optimizations
-  agent: github_actions_specialist
-  tools: []
-  context:
-    - analyze_repository
-
-create_deployment_configurations:
-  description: |
-    Design robust, scalable deployment configurations for the repository: {github_repo_url}
-    
-    Create deployment strategies that integrate seamlessly with GitHub Actions workflows for major cloud platforms (AWS, Azure, GCP).
-    
-    Focus on:
-    - Zero-downtime deployment processes
-    - Infrastructure as Code templates
-    - Health checks and monitoring setup
-    - Security hardening and best practices
-    - Auto-scaling and load balancing
-    - Disaster recovery and rollback procedures
-    
-    Repository URL: {github_repo_url}
-    
-    Generate platform-specific deployment scripts, infrastructure templates, and operational procedures.
-    Ensure all configurations are production-ready and follow cloud-native best practices.
-  expected_output: |
-    Complete deployment package containing:
-    
+    **Workflow Structure:**
     ```yaml
-    deployment_strategy:
-      cloud_platforms:
-        aws:
-          compute: "EC2"
-          instance_type: "t3.medium"
-          ami: "ubuntu-20.04"
-          security_groups: ["web-sg", "db-sg"]
-          deployment_script: "deploy-aws.sh"
-          
-        azure:
-          compute: "Virtual Machines"
-          vm_size: "Standard_B2s"
-          image: "Ubuntu Server 20.04 LTS"
-          network_security_group: "app-nsg"
-          deployment_script: "deploy-azure.sh"
-          
-        gcp:
-          compute: "Compute Engine"
-          machine_type: "e2-medium"
-          image: "ubuntu-2004-lts"
-          firewall_rules: ["allow-http", "allow-https"]
-          deployment_script: "deploy-gcp.sh"
-          
-      deployment_configuration:
-        deployment_method: "rolling|blue_green|canary"
-        health_check_endpoint: "/health"
-        readiness_timeout: 300
-        rollback_strategy: "automatic|manual"
+    name: Test and Build
+    on: [push, pull_request]
+    
+    jobs:
+      test:
+        # Matrix testing across Python versions
+        # Latest ubuntu runner
+        # Smart caching based on detected dependency files
+        # Install dependencies with fallback strategies
+        # Run tests with coverage (only if test directory exists)
+        # Upload coverage reports
         
-      infrastructure:
-        load_balancer: true
-        auto_scaling: true
-        ssl_certificate: true
-        monitoring: true
+      build:
+        needs: test
+        # Build using detected build tool (only if build config exists)
+        # Create distributable packages
+        # Upload build artifacts
+        # Verify installation
     ```
     
-    Plus individual script files:
-    - Cloud-specific deployment scripts (deploy-aws.sh, deploy-azure.sh, deploy-gcp.sh)
-    - Health check and monitoring setup scripts
-    - Infrastructure as Code templates (Terraform/CloudFormation/ARM)
-    - Rollback and disaster recovery procedures
-    - Operational runbooks and documentation
-  agent: cloud_deployment_specialist
-  tools: []
+    The workflow must be production-ready and work with 90%+ of Python repositories without modification, dynamically adapting to the presence or absence of key files and directories.
+  agent: github_workflow_generator
   context:
-    - analyze_repository
-    - generate_github_workflows
+    - analyze_test_build_setup
 
-create_deployment_documentation:
-  description: |
-    Create comprehensive deployment documentation and operational runbooks for the repository: {github_repo_url}
+
+# analyze_test_build_setup:
+#   description: |
+#     Analyze the Python repository at: {github_repo_url} specifically for testing and build configurations.
     
-    Compile all analysis, workflows, and deployment configurations into a complete deployment guide.
-    Include setup instructions, troubleshooting guides, maintenance procedures, and best practices.
+#     Focus ONLY on:
+#     1. Testing framework detection and setup
+#     2. Build tool identification and configuration  
+#     3. Dependency management approach
+#     4. Python version compatibility requirements
     
-    Repository URL: {github_repo_url}
+#     Repository URL: {github_repo_url}
     
-    Ensure documentation covers:
-    - Complete setup and configuration instructions
-    - Step-by-step deployment procedures
-    - Monitoring and maintenance guidelines
-    - Troubleshooting common issues
-    - Security considerations and compliance
-    - Performance optimization recommendations
-  expected_output: |
-    Complete deployment documentation package:
+#     Prioritize compatibility and use of latest stable versions. Avoid over-analysis and focus on essentials.
+#   expected_output: |
+#     A concise YAML analysis focusing only on test and build essentials:
     
-    1. **README.md** - Main deployment guide with overview and quick start
-    2. **SETUP.md** - Detailed setup instructions for all cloud platforms
-    3. **DEPLOYMENT.md** - Step-by-step deployment procedures
-    4. **MONITORING.md** - Monitoring, logging, and alerting setup
-    5. **TROUBLESHOOTING.md** - Common issues and solutions
-    6. **SECURITY.md** - Security best practices and compliance guidelines
-    7. **MAINTENANCE.md** - Ongoing maintenance and update procedures
+#     ```yaml
+#     test_build_analysis:
+#       project_info:
+#         name: "project-name"
+#         python_versions: ["3.8", "3.9", "3.10", "3.11", "3.12"]  # Latest supported
+#         project_type: "package|application|library"
+        
+#       testing:
+#         framework: "pytest"  # Standardize on pytest for compatibility
+#         test_directory: "tests/"
+#         test_pattern: "test_*.py or *_test.py"
+#         test_command: "python -m pytest"
+#         coverage_enabled: true|false
+#         coverage_command: "python -m pytest --cov"
+#         requirements_file: "requirements-test.txt or requirements.txt"
+#         config_file: "pytest.ini|pyproject.toml|setup.cfg"  # If exists
+        
+#       build:
+#         tool: "setuptools|poetry|flit"  # Detected build tool
+#         config_file: "pyproject.toml|setup.py|setup.cfg"
+#         build_command: "python -m build"  # Standard command
+#         package_type: "wheel|sdist|both"
+#         install_command: "pip install -e ."  # For development
+        
+#       dependencies:
+#         management: "pip|poetry|pipenv"  # Detected approach
+#         files: ["requirements.txt", "pyproject.toml", "Pipfile"]  # Found files
+#         install_command: "pip install -r requirements.txt"  # Standardized
+        
+#       compatibility:
+#         min_python: "3.8"  # Minimum supported
+#         os_support: ["ubuntu-latest"]  # Default, add others if detected
+#         special_requirements: []  # Only if system packages needed
+#     ```
+#   agent: test_build_analyst
+#   tools: []
+
+# generate_test_build_workflow:
+#   description: |
+#     Generate a single, comprehensive GitHub Actions workflow for testing and building Python applications.
     
-    All documentation should be:
-    - Clear and actionable for DevOps teams
-    - Include code examples and configuration snippets
-    - Provide troubleshooting steps for common scenarios
-    - Reference all generated workflows and configurations
-    - Include performance benchmarks and optimization tips
-  agent: repository_analyst
-  tools: []
-  context:
-    - analyze_repository
-    - generate_github_workflows
-    - create_deployment_configurations
+#     Repository URL: {github_repo_url}
+    
+#     Create a workflow that:
+#     - Tests across Python 3.8-3.12 (latest stable versions)
+#     - Uses latest stable GitHub Actions (actions/setup-python@v5, actions/cache@v4)
+#     - Implements efficient caching strategies
+#     - Builds the package/application
+#     - Handles most common Python project structures
+#     - Includes comprehensive error handling
+#     - Works reliably across different repository types
+    
+#     Focus on reliability and compatibility over complex features.
+#   expected_output: |
+#     A single, complete GitHub Actions workflow file (.github/workflows/test-and-build.yml):
+    
+#     **Key Requirements:**
+#     - Use latest stable action versions (setup-python@v5, cache@v4, etc.)
+#     - Test matrix across Python 3.8, 3.9, 3.10, 3.11, 3.12
+#     - Intelligent dependency caching with pip/poetry/pipenv detection
+#     - Automatic test framework detection (pytest preferred)
+#     - Build step integration using python -m build
+#     - Code coverage reporting (if tests detected)
+#     - Artifact upload for built packages
+#     - Clear job names and comprehensive comments
+#     - Fail-safe configurations for different project structures
+#     - Conditional steps based on file existence
+    
+#     **Workflow Structure:**
+#     ```yaml
+#     name: Test and Build
+#     on: [push, pull_request]
+    
+#     jobs:
+#       test:
+#         # Matrix testing across Python versions
+#         # Latest ubuntu runner
+#         # Smart caching based on detected dependency files
+#         # Install dependencies with fallback strategies
+#         # Run tests with coverage
+#         # Upload coverage reports
+        
+#       build:
+#         needs: test
+#         # Build using detected build tool
+#         # Create distributable packages
+#         # Upload build artifacts
+#         # Verify installation
+#     ```
+    
+#     The workflow must be production-ready and work with 90%+ of Python repositories without modification.
+#   agent: github_workflow_generator
+#   tools: []
+#   context:
+#     - analyze_test_build_setup
+
+
+
+
+
+
+
+
+
+    
+# analyze_repository:
+#   description: |
+#     Perform comprehensive technical analysis of the Python GitHub repository at: {github_repo_url}
+    
+#     Clone and analyze the repository structure, dependencies, testing frameworks, build tools, and deployment requirements.
+#     Extract all technical specifications needed for CI/CD pipeline generation.
+    
+#     Focus on:
+#     - Complete project structure mapping
+#     - All dependency identification (Python packages, system packages, services)
+#     - Testing framework detection and configuration
+#     - Build and packaging tool analysis
+#     - Environment and configuration file discovery
+    
+#     Repository URL: {github_repo_url}
+    
+#     Provide detailed analysis covering project info, structure, dependencies, testing setup, build configuration, and deployment requirements.
+#   expected_output: |
+#     A comprehensive YAML-formatted analysis report containing:
+    
+#     ```yaml
+#     repository_analysis:
+#       project_info:
+#         name: "project-name"
+#         description: "Brief project description"
+#         python_version: "3.8+"
+#         main_entry_point: "path/to/main.py or module"
+#         project_type: "web_app|cli_tool|library|service"
+      
+#       structure:
+#         source_directory: "src/ or app/ or project_name/"
+#         test_directory: "tests/ or test/"
+#         config_files: ["pyproject.toml", "requirements.txt"]
+#         docker_files: ["Dockerfile", "docker-compose.yml"]
+        
+#       dependencies:
+#         python_packages:
+#           - name: "package-name"
+#             version: ">=1.0.0"
+#             category: "production|development|test"
+#         system_packages: ["postgresql-dev", "redis-server"]
+#         services: ["postgresql", "redis", "rabbitmq"]
+        
+#       testing:
+#         framework: "pytest|unittest|nose2"
+#         test_command: "pytest tests/"
+#         coverage_tool: "coverage|pytest-cov"
+#         test_config_files: ["pytest.ini", "tox.ini"]
+        
+#       build:
+#         build_tool: "setuptools|poetry|flit"
+#         package_format: "wheel|sdist"
+#         build_command: "python -m build"
+        
+#       deployment:
+#         type: "wsgi|asgi|cli|service"
+#         server_requirements: ["gunicorn", "uvicorn"]
+#         static_files: true|false
+#         database_migrations: true|false
+#         environment_variables: ["DATABASE_URL", "SECRET_KEY"]
+#     ```
+#   agent: repository_analyst
+#   tools: []
+
+# generate_github_workflows:
+#   description: |
+#     Create comprehensive, production-ready GitHub Actions workflows for the repository: {github_repo_url}
+    
+#     Generate multiple workflow files optimized for testing, building, and deploying Python applications to cloud VMs.
+#     Implement industry best practices including security, performance optimization, and error handling.
+    
+#     Create workflows for:
+#     - Main CI/CD pipeline with testing, building, and deployment
+#     - Security scanning and vulnerability checks
+#     - Dependency updates and maintenance
+    
+#     Repository URL: {github_repo_url}
+    
+#     Each workflow must include proper error handling, caching strategies, security best practices, and cloud platform integration.
+#     Include comprehensive comments explaining each step and configuration options.
+#   expected_output: |
+#     Three complete GitHub Actions workflow files:
+    
+#     1. **Main CI/CD Workflow (.github/workflows/ci-cd.yml)**
+#        - Multi-job workflow with proper dependencies
+#        - Matrix testing across Python versions
+#        - Intelligent caching for dependencies
+#        - Security scanning integration
+#        - Multi-environment deployment (staging/production)
+#        - Rollback mechanisms
+    
+#     2. **Security Scanning Workflow (.github/workflows/security.yml)**
+#        - Dependency vulnerability scanning
+#        - Code security analysis
+#        - Container image scanning (if applicable)
+#        - Security reporting and notifications
+    
+#     3. **Dependency Update Workflow (.github/workflows/dependency-updates.yml)**
+#        - Automated dependency updates
+#        - Security patch management
+#        - Pull request automation
+#        - Testing integration for updates
+    
+#     Each workflow file should be complete, executable, and include:
+#     - Comprehensive inline documentation
+#     - Environment-specific configurations
+#     - Proper secrets management
+#     - Error handling and notifications
+#     - Performance optimizations
+#   agent: github_actions_specialist
+#   tools: []
+#   context:
+#     - analyze_repository
+
+# create_deployment_configurations:
+#   description: |
+#     Design robust, scalable deployment configurations for the repository: {github_repo_url}
+    
+#     Create deployment strategies that integrate seamlessly with GitHub Actions workflows for major cloud platforms (AWS, Azure, GCP).
+    
+#     Focus on:
+#     - Zero-downtime deployment processes
+#     - Infrastructure as Code templates
+#     - Health checks and monitoring setup
+#     - Security hardening and best practices
+#     - Auto-scaling and load balancing
+#     - Disaster recovery and rollback procedures
+    
+#     Repository URL: {github_repo_url}
+    
+#     Generate platform-specific deployment scripts, infrastructure templates, and operational procedures.
+#     Ensure all configurations are production-ready and follow cloud-native best practices.
+#   expected_output: |
+#     Complete deployment package containing:
+    
+#     ```yaml
+#     deployment_strategy:
+#       cloud_platforms:
+#         aws:
+#           compute: "EC2"
+#           instance_type: "t3.medium"
+#           ami: "ubuntu-20.04"
+#           security_groups: ["web-sg", "db-sg"]
+#           deployment_script: "deploy-aws.sh"
+          
+#         azure:
+#           compute: "Virtual Machines"
+#           vm_size: "Standard_B2s"
+#           image: "Ubuntu Server 20.04 LTS"
+#           network_security_group: "app-nsg"
+#           deployment_script: "deploy-azure.sh"
+          
+#         gcp:
+#           compute: "Compute Engine"
+#           machine_type: "e2-medium"
+#           image: "ubuntu-2004-lts"
+#           firewall_rules: ["allow-http", "allow-https"]
+#           deployment_script: "deploy-gcp.sh"
+          
+#       deployment_configuration:
+#         deployment_method: "rolling|blue_green|canary"
+#         health_check_endpoint: "/health"
+#         readiness_timeout: 300
+#         rollback_strategy: "automatic|manual"
+        
+#       infrastructure:
+#         load_balancer: true
+#         auto_scaling: true
+#         ssl_certificate: true
+#         monitoring: true
+#     ```
+    
+#     Plus individual script files:
+#     - Cloud-specific deployment scripts (deploy-aws.sh, deploy-azure.sh, deploy-gcp.sh)
+#     - Health check and monitoring setup scripts
+#     - Infrastructure as Code templates (Terraform/CloudFormation/ARM)
+#     - Rollback and disaster recovery procedures
+#     - Operational runbooks and documentation
+#   agent: cloud_deployment_specialist
+#   tools: []
+#   context:
+#     - analyze_repository
+#     - generate_github_workflows
+
+# create_deployment_documentation:
+#   description: |
+#     Create comprehensive deployment documentation and operational runbooks for the repository: {github_repo_url}
+    
+#     Compile all analysis, workflows, and deployment configurations into a complete deployment guide.
+#     Include setup instructions, troubleshooting guides, maintenance procedures, and best practices.
+    
+#     Repository URL: {github_repo_url}
+    
+#     Ensure documentation covers:
+#     - Complete setup and configuration instructions
+#     - Step-by-step deployment procedures
+#     - Monitoring and maintenance guidelines
+#     - Troubleshooting common issues
+#     - Security considerations and compliance
+#     - Performance optimization recommendations
+#   expected_output: |
+#     Complete deployment documentation package:
+    
+#     1. **README.md** - Main deployment guide with overview and quick start
+#     2. **SETUP.md** - Detailed setup instructions for all cloud platforms
+#     3. **DEPLOYMENT.md** - Step-by-step deployment procedures
+#     4. **MONITORING.md** - Monitoring, logging, and alerting setup
+#     5. **TROUBLESHOOTING.md** - Common issues and solutions
+#     6. **SECURITY.md** - Security best practices and compliance guidelines
+#     7. **MAINTENANCE.md** - Ongoing maintenance and update procedures
+    
+#     All documentation should be:
+#     - Clear and actionable for DevOps teams
+#     - Include code examples and configuration snippets
+#     - Provide troubleshooting steps for common scenarios
+#     - Reference all generated workflows and configurations
+#     - Include performance benchmarks and optimization tips
+#   agent: repository_analyst
+#   tools: []
+#   context:
+#     - analyze_repository
+#     - generate_github_workflows
+#     - create_deployment_configurations

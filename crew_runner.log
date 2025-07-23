@@ -1,0 +1,261 @@
+2025-07-23 13:04:26,016 - INFO - Running the crew.
+2025-07-23 13:04:26,248 - INFO - 
+LiteLLM completion() model= gpt-4o-mini; provider = openai
+2025-07-23 13:04:27,468 - INFO - HTTP Request: POST https://aicarnival2025.openai.azure.com/chat/completions "HTTP/1.1 404 Resource Not Found"
+2025-07-23 13:04:27,696 - ERROR - LiteLLM call failed: litellm.NotFoundError: NotFoundError: OpenAIException - Resource not found
+2025-07-23 13:04:27,699 - ERROR - Error in run(): litellm.NotFoundError: NotFoundError: OpenAIException - Resource not found
+Traceback (most recent call last):
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/litellm/llms/openai/openai.py", line 724, in completion
+    raise e
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/litellm/llms/openai/openai.py", line 652, in completion
+    ) = self.make_sync_openai_chat_completion_request(
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/litellm/litellm_core_utils/logging_utils.py", line 149, in sync_wrapper
+    result = func(*args, **kwargs)
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/litellm/llms/openai/openai.py", line 471, in make_sync_openai_chat_completion_request
+    raise e
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/litellm/llms/openai/openai.py", line 453, in make_sync_openai_chat_completion_request
+    raw_response = openai_client.chat.completions.with_raw_response.create(
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/openai/_legacy_response.py", line 364, in wrapped
+    return cast(LegacyAPIResponse[R], func(*args, **kwargs))
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/openai/_utils/_utils.py", line 279, in wrapper
+    return func(*args, **kwargs)
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/openai/resources/chat/completions/completions.py", line 929, in create
+    return self._post(
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/openai/_base_client.py", line 1276, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/openai/_base_client.py", line 949, in request
+    return self._request(
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/openai/_base_client.py", line 1057, in _request
+    raise self._make_status_error_from_response(err.response) from None
+openai.NotFoundError: Error code: 404 - {'error': {'code': '404', 'message': 'Resource not found'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/litellm/main.py", line 1831, in completion
+    raise e
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/litellm/main.py", line 1804, in completion
+    response = openai_chat_completions.completion(
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/litellm/llms/openai/openai.py", line 735, in completion
+    raise OpenAIError(
+litellm.llms.openai.common_utils.OpenAIError: Error code: 404 - {'error': {'code': '404', 'message': 'Resource not found'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/mnt/d/LINUX/DevOps_Agents/src/new_latte/main.py", line 32, in run
+    NewLatte().crew().kickoff(inputs=inputs)
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/crew.py", line 661, in kickoff
+    result = self._run_sequential_process()
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/crew.py", line 773, in _run_sequential_process
+    return self._execute_tasks(self.tasks)
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/crew.py", line 876, in _execute_tasks
+    task_output = task.execute_sync(
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/task.py", line 351, in execute_sync
+    return self._execute_core(agent, context, tools)
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/task.py", line 495, in _execute_core
+    raise e  # Re-raise the exception after emitting the event
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/task.py", line 415, in _execute_core
+    result = agent.execute_task(
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/agent.py", line 428, in execute_task
+    raise e
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/agent.py", line 404, in execute_task
+    result = self._execute_without_timeout(task_prompt, task)
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/agent.py", line 500, in _execute_without_timeout
+    return self.agent_executor.invoke(
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/agents/crew_agent_executor.py", line 121, in invoke
+    raise e
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/agents/crew_agent_executor.py", line 110, in invoke
+    formatted_answer = self._invoke_loop()
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/agents/crew_agent_executor.py", line 206, in _invoke_loop
+    raise e
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/agents/crew_agent_executor.py", line 153, in _invoke_loop
+    answer = get_llm_response(
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/utilities/agent_utils.py", line 157, in get_llm_response
+    raise e
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/utilities/agent_utils.py", line 148, in get_llm_response
+    answer = llm.call(
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/llm.py", line 956, in call
+    return self._handle_non_streaming_response(
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/llm.py", line 768, in _handle_non_streaming_response
+    response = litellm.completion(**params)
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/litellm/utils.py", line 1255, in wrapper
+    raise e
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/litellm/utils.py", line 1133, in wrapper
+    result = original_function(*args, **kwargs)
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/litellm/main.py", line 3216, in completion
+    raise exception_type(
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2224, in exception_type
+    raise e
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 405, in exception_type
+    raise NotFoundError(
+litellm.exceptions.NotFoundError: litellm.NotFoundError: NotFoundError: OpenAIException - Resource not found
+2025-07-23 13:08:26,528 - INFO - Running the crew.
+2025-07-23 13:08:27,300 - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-07-23 13:08:29,708 - INFO - HTTP Request: POST https://aicarnival2025.openai.azure.com/chat/completions "HTTP/1.1 404 Resource Not Found"
+2025-07-23 13:08:30,022 - ERROR - LiteLLM call failed: litellm.NotFoundError: NotFoundError: OpenAIException - Resource not found
+2025-07-23 13:08:30,031 - ERROR - Error in run(): litellm.NotFoundError: NotFoundError: OpenAIException - Resource not found
+Traceback (most recent call last):
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/litellm/llms/openai/openai.py", line 724, in completion
+    raise e
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/litellm/llms/openai/openai.py", line 652, in completion
+    ) = self.make_sync_openai_chat_completion_request(
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/litellm/litellm_core_utils/logging_utils.py", line 149, in sync_wrapper
+    result = func(*args, **kwargs)
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/litellm/llms/openai/openai.py", line 471, in make_sync_openai_chat_completion_request
+    raise e
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/litellm/llms/openai/openai.py", line 453, in make_sync_openai_chat_completion_request
+    raw_response = openai_client.chat.completions.with_raw_response.create(
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/openai/_legacy_response.py", line 364, in wrapped
+    return cast(LegacyAPIResponse[R], func(*args, **kwargs))
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/openai/_utils/_utils.py", line 279, in wrapper
+    return func(*args, **kwargs)
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/openai/resources/chat/completions/completions.py", line 929, in create
+    return self._post(
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/openai/_base_client.py", line 1276, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/openai/_base_client.py", line 949, in request
+    return self._request(
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/openai/_base_client.py", line 1057, in _request
+    raise self._make_status_error_from_response(err.response) from None
+openai.NotFoundError: Error code: 404 - {'error': {'code': '404', 'message': 'Resource not found'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/litellm/main.py", line 1831, in completion
+    raise e
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/litellm/main.py", line 1804, in completion
+    response = openai_chat_completions.completion(
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/litellm/llms/openai/openai.py", line 735, in completion
+    raise OpenAIError(
+litellm.llms.openai.common_utils.OpenAIError: Error code: 404 - {'error': {'code': '404', 'message': 'Resource not found'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/mnt/d/LINUX/DevOps_Agents/src/new_latte/main.py", line 32, in run
+    NewLatte().crew().kickoff(inputs=inputs)
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/crew.py", line 661, in kickoff
+    result = self._run_sequential_process()
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/crew.py", line 773, in _run_sequential_process
+    return self._execute_tasks(self.tasks)
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/crew.py", line 876, in _execute_tasks
+    task_output = task.execute_sync(
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/task.py", line 351, in execute_sync
+    return self._execute_core(agent, context, tools)
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/task.py", line 495, in _execute_core
+    raise e  # Re-raise the exception after emitting the event
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/task.py", line 415, in _execute_core
+    result = agent.execute_task(
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/agent.py", line 428, in execute_task
+    raise e
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/agent.py", line 404, in execute_task
+    result = self._execute_without_timeout(task_prompt, task)
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/agent.py", line 500, in _execute_without_timeout
+    return self.agent_executor.invoke(
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/agents/crew_agent_executor.py", line 121, in invoke
+    raise e
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/agents/crew_agent_executor.py", line 110, in invoke
+    formatted_answer = self._invoke_loop()
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/agents/crew_agent_executor.py", line 206, in _invoke_loop
+    raise e
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/agents/crew_agent_executor.py", line 153, in _invoke_loop
+    answer = get_llm_response(
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/utilities/agent_utils.py", line 157, in get_llm_response
+    raise e
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/utilities/agent_utils.py", line 148, in get_llm_response
+    answer = llm.call(
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/llm.py", line 956, in call
+    return self._handle_non_streaming_response(
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/llm.py", line 768, in _handle_non_streaming_response
+    response = litellm.completion(**params)
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/litellm/utils.py", line 1255, in wrapper
+    raise e
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/litellm/utils.py", line 1133, in wrapper
+    result = original_function(*args, **kwargs)
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/litellm/main.py", line 3216, in completion
+    raise exception_type(
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2224, in exception_type
+    raise e
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 405, in exception_type
+    raise NotFoundError(
+litellm.exceptions.NotFoundError: litellm.NotFoundError: NotFoundError: OpenAIException - Resource not found
+2025-07-23 13:11:46,662 - INFO - Running the crew.
+2025-07-23 13:11:47,419 - INFO - 
+LiteLLM completion() model= gpt-4o-mini; provider = openai
+2025-07-23 13:11:47,658 - ERROR - LiteLLM call failed: litellm.AuthenticationError: AuthenticationError: OpenAIException - The api_key client option must be set either by passing api_key to the client or by setting the OPENAI_API_KEY environment variable
+2025-07-23 13:11:47,666 - ERROR - Error in run(): litellm.AuthenticationError: AuthenticationError: OpenAIException - The api_key client option must be set either by passing api_key to the client or by setting the OPENAI_API_KEY environment variable
+Traceback (most recent call last):
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/litellm/llms/openai/openai.py", line 724, in completion
+    raise e
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/litellm/llms/openai/openai.py", line 626, in completion
+    openai_client: OpenAI = self._get_openai_client(  # type: ignore
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/litellm/llms/openai/openai.py", line 377, in _get_openai_client
+    _new_client = OpenAI(
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/openai/_client.py", line 116, in __init__
+    raise OpenAIError(
+openai.OpenAIError: The api_key client option must be set either by passing api_key to the client or by setting the OPENAI_API_KEY environment variable
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/litellm/main.py", line 1831, in completion
+    raise e
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/litellm/main.py", line 1804, in completion
+    response = openai_chat_completions.completion(
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/litellm/llms/openai/openai.py", line 735, in completion
+    raise OpenAIError(
+litellm.llms.openai.common_utils.OpenAIError: The api_key client option must be set either by passing api_key to the client or by setting the OPENAI_API_KEY environment variable
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/mnt/d/LINUX/DevOps_Agents/src/new_latte/main.py", line 32, in run
+    NewLatte().crew().kickoff(inputs=inputs)
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/crew.py", line 661, in kickoff
+    result = self._run_sequential_process()
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/crew.py", line 773, in _run_sequential_process
+    return self._execute_tasks(self.tasks)
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/crew.py", line 876, in _execute_tasks
+    task_output = task.execute_sync(
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/task.py", line 351, in execute_sync
+    return self._execute_core(agent, context, tools)
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/task.py", line 495, in _execute_core
+    raise e  # Re-raise the exception after emitting the event
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/task.py", line 415, in _execute_core
+    result = agent.execute_task(
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/agent.py", line 428, in execute_task
+    raise e
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/agent.py", line 404, in execute_task
+    result = self._execute_without_timeout(task_prompt, task)
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/agent.py", line 500, in _execute_without_timeout
+    return self.agent_executor.invoke(
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/agents/crew_agent_executor.py", line 121, in invoke
+    raise e
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/agents/crew_agent_executor.py", line 110, in invoke
+    formatted_answer = self._invoke_loop()
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/agents/crew_agent_executor.py", line 206, in _invoke_loop
+    raise e
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/agents/crew_agent_executor.py", line 153, in _invoke_loop
+    answer = get_llm_response(
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/utilities/agent_utils.py", line 157, in get_llm_response
+    raise e
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/utilities/agent_utils.py", line 148, in get_llm_response
+    answer = llm.call(
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/llm.py", line 956, in call
+    return self._handle_non_streaming_response(
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/crewai/llm.py", line 768, in _handle_non_streaming_response
+    response = litellm.completion(**params)
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/litellm/utils.py", line 1255, in wrapper
+    raise e
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/litellm/utils.py", line 1133, in wrapper
+    result = original_function(*args, **kwargs)
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/litellm/main.py", line 3216, in completion
+    raise exception_type(
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2224, in exception_type
+    raise e
+  File "/mnt/d/LINUX/DevOps_Agents/.venv/lib/python3.10/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 363, in exception_type
+    raise AuthenticationError(
+litellm.exceptions.AuthenticationError: litellm.AuthenticationError: AuthenticationError: OpenAIException - The api_key client option must be set either by passing api_key to the client or by setting the OPENAI_API_KEY environment variable
