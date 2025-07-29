@@ -1,118 +1,464 @@
 analyze_test_build_setup:
   description: |
-    Analyze the Python repository at: {github_repo_url} specifically for testing and build configurations.
+    Analyze the Python repository at: {github_repo_url} specifically for file and directory existence required for testing and building.
     
-    Focus ONLY on:
-    1. Testing framework detection and setup (only if test directories/files are present)
-    2. Build tool identification and configuration (only if build config files are present)
-    3. Dependency management approach (based on detected files)
-    4. Python version compatibility requirements
+    TOOL USAGE STEPS:
+    1. Use clone_repository tool to clone the GitHub repository
+    2. Use analyze_repository_structure tool to map the project structure
+    3. Use detect_python_frameworks tool to identify testing/build frameworks
+    4. Use read_file_content tool to examine key configuration files
     
-    Dynamically detect the presence of key files and directories (e.g., requirements.txt, pyproject.toml, setup.py, setup.cfg, Pipfile, tests/).
-    Only include analysis for files and directories that exist in the repository. If a file or directory is missing (e.g., requirements.txt, tests/), skip or comment out the related step in the analysis.
+    CRITICAL REQUIREMENTS:
+    1. Check for EXISTENCE of test directories (tests/, test/) - DO NOT assume they exist
+    2. Check for EXISTENCE of build configuration files (pyproject.toml, setup.py, setup.cfg)
+    3. Check for EXISTENCE of dependency files (requirements.txt, pyproject.toml, Pipfile)
+    4. Provide CONDITIONAL logic based on what files/directories are found vs missing
+    5. Generate error-safe recommendations that handle missing components
     
     Repository URL: {github_repo_url}
     
-    Prioritize compatibility and use of latest stable versions. Avoid over-analysis and focus on essentials.
+    Focus on existence detection, not feature analysis. The workflow must know what EXISTS before trying to use it.
   expected_output: |
-    A concise YAML analysis focusing only on test and build essentials, including only detected files and directories:
+    A detailed YAML analysis focused on file/directory EXISTENCE and conditional logic by analyzing this repository {github_repo_url}:
     
     ```yaml
-    test_build_analysis:
-      project_info:
-        name: "project-name"
-        python_versions: ["3.8", "3.9", "3.10", "3.11", "3.12"]  # Latest supported
-        project_type: "package|application|library"
+    repository_structure_analysis:
+      repository_url: "{github_repo_url}"
+      analysis_timestamp: "2024-XX-XX"
+      
+      files_found:
+        test_directories:
+          exists: true|false
+          locations: ["tests/", "test/"]  # Only list if found
+          test_files_count: 0|number
+          test_patterns: ["test_*.py", "*_test.py"]  # Only if files found
+          
+        build_configuration:
+          exists: true|false
+          type: "pyproject|setuptools|none"
+          files: ["pyproject.toml", "setup.py"]  # Only list if found
+          
+        dependency_management:
+          exists: true|false
+          primary_file: "requirements.txt|pyproject.toml|Pipfile|none"
+          all_files: ["requirements.txt"]  # Only list if found
+          
+      frameworks_detected:
+        testing_framework: "pytest|unittest|none"
+        build_tool: "poetry|setuptools|none"
+        web_framework: "django|flask|fastapi|none"
+          
+      conditional_logic:
+        should_run_tests: true|false
+        should_run_build: true|false
+        has_dependencies: true|false
         
-      testing:
-        framework: "pytest"  # Only if test directory found
-        test_directory: "tests/"  # Only if exists
-        test_pattern: "test_*.py or *_test.py"
-        test_command: "python -m pytest"
-        coverage_enabled: true|false
-        coverage_command: "python -m pytest --cov"
-        requirements_file: "requirements-test.txt or requirements.txt"
-        config_file: "pytest.ini|pyproject.toml|setup.cfg"  # If exists
-        note: "No tests found. Skipping test analysis."  # If no test directory found
+      missing_components:
+        missing_tests: true|false
+        missing_build_config: true|false
+        missing_dependencies: true|false
         
-      build:
-        tool: "setuptools|poetry|flit"  # Only if build config file found
-        config_file: "pyproject.toml|setup.py|setup.cfg"
-        build_command: "python -m build"  # Standard command
-        package_type: "wheel|sdist|both"
-        install_command: "pip install -e ."  # For development
-        note: "No build configuration found. Skipping build analysis."  # If no build config found
+      recommendations:
+        if_tests_missing: "Create tests/ directory with test_*.py files"
+        if_build_missing: "Add pyproject.toml or setup.py for building"
+        if_deps_missing: "Add requirements.txt or specify dependencies in pyproject.toml"
         
-      dependencies:
-        management: "pip|poetry|pipenv"  # Detected approach
-        files: ["requirements.txt", "pyproject.toml", "Pipfile"]  # Only found files
-        install_command: "pip install -r requirements.txt"  # Standardized
-        
-      compatibility:
-        min_python: "3.8"  # Minimum supported
-        os_support: ["ubuntu-latest"]  # Default, add others if detected
-        special_requirements: []  # Only if system packages needed
+      workflow_instructions:
+        analyze_first: true  # Always analyze structure before running anything
+        conditional_execution: true  # Only run jobs if files exist
+        error_handling: true  # Handle missing files gracefully
+        no_caching: true  # Do not implement caching stages
     ```
   agent: test_build_analyst
+  # Tools will be automatically available from crew.py assignment
 
 generate_test_build_workflow:
   description: |
-    Generate a single, comprehensive GitHub Actions workflow for testing and building Python applications.
+    Generate a simple GitHub Actions workflow for the repository: {github_repo_url} with ONLY test and build jobs using simple file checks.
+    
+    TOOL USAGE STEPS:
+    1. Use read_file_content tool (if needed) to reference project configuration
+    2. Use generate_workflow_yaml tool to create the workflow file
+    
+    CRITICAL REQUIREMENTS:
+    1. **NO CACHING STAGES** - Do not include any dependency caching steps
+    2. **NO ANALYSIS JOB** - Do not create analysis jobs in the workflow (agent does the analysis)
+    3. **SIMPLE FILE CHECKS** - Use simple `[ -d "tests" ]` or `[ -f "setup.py" ]` checks, NOT `set -e` or complex logic
+    4. **MINIMAL STEPS** - Only essential steps, no unnecessary verification or handling steps
+    5. **CLEAR CONDITIONS** - Use simple if conditions with file existence checks
+    6. **GITHUB ACTIONS v4** - Use GitHub Actions version 4 for all prebuilt actions
     
     Repository URL: {github_repo_url}
     
-    The workflow must:
-    - Dynamically detect and use only the dependency, build, and test files/directories that exist in the repository (e.g., requirements.txt, pyproject.toml, setup.py, Pipfile, tests/)
-    - Skip or comment out steps for missing files/directories (e.g., if no tests/ directory, skip test job and add a comment)
-    - Test across Python 3.8-3.12 (latest stable versions)
-    - Use latest stable GitHub Actions (actions/setup-python@v5, actions/cache@v4)
-    - Implement efficient caching strategies
-    - Build the package/application if build config exists
-    - Include comprehensive error handling
-    - Work reliably across different repository types
-    
-    Focus on reliability and compatibility over complex features.
+    Keep it simple: check if file/directory exists, if yes run the operation, if no show message and skip.
   expected_output: |
-    A single, complete GitHub Actions workflow file (.github/workflows/test-and-build.yml):
+    A simple GitHub Actions workflow with clean, minimal logic saved to workflows.yaml:
     
-    **Key Requirements:**
-    - Use latest stable action versions (setup-python@v5, cache@v4, etc.)
-    - Test matrix across Python 3.8, 3.9, 3.10, 3.11, 3.12
-    - Intelligent dependency caching with pip/poetry/pipenv detection
-    - Automatic test framework detection (pytest preferred)
-    - Build step integration using python -m build (only if build config exists)
-    - Code coverage reporting (if tests detected)
-    - Artifact upload for built packages
-    - Clear job names and comprehensive comments
-    - Fail-safe configurations for different project structures
-    - Conditional steps based on file existence (skip or comment out steps for missing files/directories)
+    **REQUIRED STRUCTURE:**
     
-    **Workflow Structure:**
     ```yaml
     name: Test and Build
     on: [push, pull_request]
     
     jobs:
       test:
-        # Matrix testing across Python versions
-        # Latest ubuntu runner
-        # Smart caching based on detected dependency files
-        # Install dependencies with fallback strategies
-        # Run tests with coverage (only if test directory exists)
-        # Upload coverage reports
-        
+        runs-on: ubuntu-latest
+        strategy:
+          matrix:
+            python-version: [3.12]
+        steps:
+          - uses: actions/checkout@v4
+          - uses: actions/setup-python@v4
+            with:
+              python-version: ${{ matrix.python-version }}
+          - name: Install dependencies and run tests
+            run: |
+              if [ -d "tests" ]; then
+                echo "Tests directory found, running tests..."
+                pip install pytest  # or detected framework
+                python -m pytest tests/
+              else
+                echo "No tests directory found, skipping tests"
+              fi
+      
       build:
         needs: test
-        # Build using detected build tool (only if build config exists)
-        # Create distributable packages
-        # Upload build artifacts
-        # Verify installation
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v4
+          - uses: actions/setup-python@v4
+            with:
+              python-version: 3.11
+          - name: Build project
+            run: |
+              if [ -f "pyproject.toml" ] || [ -f "setup.py" ]; then
+                echo "Build configuration found, building..."
+                pip install build
+                python -m build
+                [ -d "dist" ] && echo "Build successful"
+              else
+                echo "No build configuration found, skipping build"
+              fi
+          - name: Upload artifacts
+            if: hashFiles('dist/**') != ''
+            uses: actions/upload-artifact@v4
+            with:
+              name: build-artifacts
+              path: dist/
     ```
     
-    The workflow must be production-ready and work with 90%+ of Python repositories without modification, dynamically adapting to the presence or absence of key files and directories.
+    **MANDATORY FEATURES:**
+    - Simple `[ -d "directory" ]` and `[ -f "file" ]` checks
+    - NO `set -e` or complex error handling
+    - NO unnecessary verification steps
+    - NO separate handling steps for missing files
+    - One step that checks and runs, or shows message and skips
+    - Use agent analysis to determine correct commands
+    
+    **FORBIDDEN:**
+    - Multiple steps for the same operation
+    - Complex conditional logic
+    - Unnecessary verification steps
+    - `set -e` usage
+    - Placeholder comments
   agent: github_workflow_generator
   context:
     - analyze_test_build_setup
+  # Tools will be automatically available from crew.py assignment
+
+
+
+
+
+
+
+
+
+# analyze_test_build_setup:
+#   description: |
+#     Analyze the Python repository at: {github_repo_url} specifically for file and directory existence required for testing and building.
+    
+#     CRITICAL REQUIREMENTS:
+#     1. Check for EXISTENCE of test directories (tests/, test/) - DO NOT assume they exist
+#     2. Check for EXISTENCE of build configuration files (pyproject.toml, setup.py, setup.cfg)
+#     3. Check for EXISTENCE of dependency files (requirements.txt, pyproject.toml, Pipfile)
+#     4. Provide CONDITIONAL logic based on what files/directories are found vs missing
+#     5. Generate error-safe recommendations that handle missing components
+    
+#     Repository URL: {github_repo_url}
+    
+#     Focus on existence detection, not feature analysis. The workflow must know what EXISTS before trying to use it.
+#   expected_output: |
+#     A detailed YAML analysis focused on file/directory EXISTENCE and conditional logic by analyzing this repository {github_repo_url} :
+    
+#     ```yaml
+#     repository_structure_analysis :
+#       files_found:
+#         test_directories:
+#           exists: true|false
+#           locations: ["tests/", "test/"]  # Only list if found
+#           test_files_count: 0|number
+#           test_patterns: ["test_*.py", "*_test.py"]  # Only if files found
+          
+#         build_configuration:
+#           exists: true|false
+#           type: "pyproject|setuptools|none"
+#           files: ["pyproject.toml", "setup.py"]  # Only list if found
+          
+#         dependency_management:
+#           exists: true|false
+#           primary_file: "requirements.txt|pyproject.toml|Pipfile|none"
+#           all_files: ["requirements.txt"]  # Only list if found
+          
+#       conditional_logic:
+#         should_run_tests: true|false
+#         should_run_build: true|false
+#         test_framework: "pytest|unittest|none"
+#         build_tool: "setuptools|poetry|none"
+        
+#       missing_components:
+#         missing_tests: true|false
+#         missing_build_config: true|false
+#         missing_dependencies: true|false
+        
+#       recommendations:
+#         if_tests_missing: "Create tests/ directory with test_*.py files"
+#         if_build_missing: "Add pyproject.toml or setup.py for building"
+#         if_deps_missing: "Add requirements.txt or specify dependencies in pyproject.toml"
+        
+#       workflow_instructions:
+#         analyze_first: true  # Always analyze structure before running anything
+#         conditional_execution: true  # Only run jobs if files exist
+#         error_handling: true  # Handle missing files gracefully
+#         no_caching: true  # Do not implement caching stages
+#     ```
+#   agent: test_build_analyst
+#   tools: []
+
+# generate_test_build_workflow:
+#   description: |
+#     Generate a simple GitHub Actions workflow for the repository: {github_repo_url} with ONLY test and build jobs using simple file checks.
+    
+#     CRITICAL REQUIREMENTS:
+#     1. **NO CACHING STAGES** - Do not include any dependency caching steps
+#     2. **NO ANALYSIS JOB** - Do not create analysis jobs in the workflow (agent does the analysis)
+#     3. **SIMPLE FILE CHECKS** - Use simple `[ -d "tests" ]` or `[ -f "setup.py" ]` checks, NOT `set -e` or complex logic
+#     4. **MINIMAL STEPS** - Only essential steps, no unnecessary verification or handling steps
+#     5. **CLEAR CONDITIONS** - Use simple if conditions with file existence checks
+#     6. **GITHUB ACTIONS v4** - Use GitHub Actions version 4 for all prebuilt actions
+    
+#     Repository URL: {github_repo_url}
+    
+#     Keep it simple: check if file/directory exists, if yes run the operation, if no show message and skip.
+#   expected_output: |
+#     A simple GitHub Actions workflow with clean, minimal logic:
+    
+#     **REQUIRED STRUCTURE:**
+    
+#     ```yaml
+#     name: Test and Build
+#     on: [push, pull_request]
+    
+#     jobs:
+#       test:
+#         runs-on: ubuntu-latest
+#         strategy:
+#           matrix:
+#             python-version: [3.12]
+#         steps:
+#           - uses: actions/checkout@v4
+#           - uses: actions/setup-python@v4
+#             with:
+#               python-version: ${{ matrix.python-version }}
+#           - name: Install dependencies and run tests
+#             run: |
+#               if [ -d "tests" ]; then
+#                 echo "Tests directory found, running tests..."
+#                 pip install pytest  # or detected framework
+#                 python -m pytest tests/
+#               else
+#                 echo "No tests directory found, skipping tests"
+#               fi
+      
+#       build:
+#         needs: test
+#         runs-on: ubuntu-latest
+#         steps:
+#           - uses: actions/checkout@v4
+#           - uses: actions/setup-python@v4
+#             with:
+#               python-version: 3.11
+#           - name: Build project
+#             run: |
+#               if [ -f "pyproject.toml" ] || [ -f "setup.py" ]; then
+#                 echo "Build configuration found, building..."
+#                 pip install build
+#                 python -m build
+#                 [ -d "dist" ] && echo "Build successful"
+#               else
+#                 echo "No build configuration found, skipping build"
+#               fi
+#           - name: Upload artifacts
+#             if: hashFiles('dist/**') != ''
+#             uses: actions/upload-artifact@v4
+#             with:
+#               name: build-artifacts
+#               path: dist/
+#     ```
+    
+#     **MANDATORY FEATURES:**
+#     - Simple `[ -d "directory" ]` and `[ -f "file" ]` checks
+#     - NO `set -e` or complex error handling
+#     - NO unnecessary verification steps
+#     - NO separate handling steps for missing files
+#     - One step that checks and runs, or shows message and skips
+#     - Use agent analysis to determine correct commands
+    
+#     **FORBIDDEN:**
+#     - Multiple steps for the same operation
+#     - Complex conditional logic
+#     - Unnecessary verification steps
+#     - `set -e` usage
+#     - Placeholder comments
+#   agent: github_workflow_generator
+#   tools: []
+#   context:
+#     - analyze_test_build_setup
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# analyze_test_build_setup:
+#   description: |
+#     Analyze the Python repository at: {github_repo_url} specifically for testing and build configurations.
+    
+#     Focus ONLY on:
+#     1. Testing framework detection and setup (only if test directories/files are present)
+#     2. Build tool identification and configuration (only if build config files are present)
+#     3. Dependency management approach (based on detected files)
+#     4. Python version compatibility requirements
+    
+#     Dynamically detect the presence of key files and directories (e.g., requirements.txt, pyproject.toml, setup.py, setup.cfg, Pipfile, tests/).
+#     Only include analysis for files and directories that exist in the repository. If a file or directory is missing (e.g., requirements.txt, tests/), skip or comment out the related step in the analysis.
+    
+#     Repository URL: {github_repo_url}
+    
+#     Prioritize compatibility and use of latest stable versions. Avoid over-analysis and focus on essentials.
+#   expected_output: |
+#     A concise YAML analysis focusing only on test and build essentials, including only detected files and directories:
+    
+#     ```yaml
+#     test_build_analysis:
+#       project_info:
+#         name: "project-name"
+#         python_versions: ["3.8", "3.9", "3.10", "3.11", "3.12"]  # Latest supported
+#         project_type: "package|application|library"
+        
+#       testing:
+#         framework: "pytest"  # Only if test directory found
+#         test_directory: "tests/"  # Only if exists
+#         test_pattern: "test_*.py or *_test.py"
+#         test_command: "python -m pytest"
+#         coverage_enabled: true|false
+#         coverage_command: "python -m pytest --cov"
+#         requirements_file: "requirements-test.txt or requirements.txt"
+#         config_file: "pytest.ini|pyproject.toml|setup.cfg"  # If exists
+#         note: "No tests found. Skipping test analysis."  # If no test directory found
+        
+#       build:
+#         tool: "setuptools|poetry|flit"  # Only if build config file found
+#         config_file: "pyproject.toml|setup.py|setup.cfg"
+#         build_command: "python -m build"  # Standard command
+#         package_type: "wheel|sdist|both"
+#         install_command: "pip install -e ."  # For development
+#         note: "No build configuration found. Skipping build analysis."  # If no build config found
+        
+#       dependencies:
+#         management: "pip|poetry|pipenv"  # Detected approach
+#         files: ["requirements.txt", "pyproject.toml", "Pipfile"]  # Only found files
+#         install_command: "pip install -r requirements.txt"  # Standardized
+        
+#       compatibility:
+#         min_python: "3.8"  # Minimum supported
+#         os_support: ["ubuntu-latest"]  # Default, add others if detected
+#         special_requirements: []  # Only if system packages needed
+#     ```
+#   agent: test_build_analyst
+
+# generate_test_build_workflow:
+#   description: |
+#     Generate a single, comprehensive GitHub Actions workflow for testing and building Python applications.
+    
+#     Repository URL: {github_repo_url}
+    
+#     The workflow must:
+#     - Dynamically detect and use only the dependency, build, and test files/directories that exist in the repository (e.g., requirements.txt, pyproject.toml, setup.py, Pipfile, tests/)
+#     - Skip or comment out steps for missing files/directories (e.g., if no tests/ directory, skip test job and add a comment)
+#     - Test across Python 3.8-3.12 (latest stable versions)
+#     - Use latest stable GitHub Actions (actions/setup-python@v5, actions/cache@v4)
+#     - Implement efficient caching strategies
+#     - Build the package/application if build config exists
+#     - Include comprehensive error handling
+#     - Work reliably across different repository types
+    
+#     Focus on reliability and compatibility over complex features.
+#   expected_output: |
+#     A single, complete GitHub Actions workflow file (.github/workflows/test-and-build.yml):
+    
+#     **Key Requirements:**
+#     - Use latest stable action versions (setup-python@v5, cache@v4, etc.)
+#     - Test matrix across Python 3.8, 3.9, 3.10, 3.11, 3.12
+#     - Intelligent dependency caching with pip/poetry/pipenv detection
+#     - Automatic test framework detection (pytest preferred)
+#     - Build step integration using python -m build (only if build config exists)
+#     - Code coverage reporting (if tests detected)
+#     - Artifact upload for built packages
+#     - Clear job names and comprehensive comments
+#     - Fail-safe configurations for different project structures
+#     - Conditional steps based on file existence (skip or comment out steps for missing files/directories)
+    
+#     **Workflow Structure:**
+#     ```yaml
+#     name: Test and Build
+#     on: [push, pull_request]
+    
+#     jobs:
+#       test:
+#         # Matrix testing across Python versions
+#         # Latest ubuntu runner
+#         # Smart caching based on detected dependency files
+#         # Install dependencies with fallback strategies
+#         # Run tests with coverage (only if test directory exists)
+#         # Upload coverage reports
+        
+#       build:
+#         needs: test
+#         # Build using detected build tool (only if build config exists)
+#         # Create distributable packages
+#         # Upload build artifacts
+#         # Verify installation
+#     ```
+    
+#     The workflow must be production-ready and work with 90%+ of Python repositories without modification, dynamically adapting to the presence or absence of key files and directories.
+#   agent: github_workflow_generator
+#   context:
+#     - analyze_test_build_setup
 
 
 # analyze_test_build_setup:

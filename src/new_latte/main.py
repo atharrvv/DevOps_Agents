@@ -17,9 +17,15 @@ def run():
     """
     Run the crew.
     """
+    # Ask for repo URL if not provided as a command-line argument
+    if len(sys.argv) > 1:
+        github_repo_url = sys.argv[1]
+    else:
+        github_repo_url = input("Enter the GitHub repository URL to analyze: ").strip()
+
     inputs = {
         'current_year': str(datetime.now().year),
-        'github_repo_url': 'https://github.com/atharrvv/URL.git'
+        'github_repo_url': github_repo_url
     }
     
     try:
@@ -34,7 +40,7 @@ def train():
     """
     inputs = {
         'current_year': str(datetime.now().year),
-        'github_repo_url': 'https://github.com/atharrvv/URL.git'
+        # 'github_repo_url': 'https://github.com/atharrvv/pasportaservo.git'
     }
     try:
         NewLatte().crew().train(n_iterations=int(sys.argv[1]), filename=sys.argv[2], inputs=inputs)
@@ -58,7 +64,7 @@ def test():
     """
     inputs = {
         "current_year": str(datetime.now().year),
-        'github_repo_url': 'https://github.com/atharrvv/URL.git'
+        # 'github_repo_url': 'https://github.com/atharrvv/pasportaservo.git'
         
     }
     
